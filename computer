@@ -200,6 +200,7 @@ print('2:源码破解器')
 print('3:高斯如何画正十七边形')
 print('4:进入作者模式')
 a=input('请选择:')
+#主程序
 if int(a)==1:
     newsDate = input('请输入要看新闻的日期（格式如 20190502 ）:')
     year = newsDate[0:4]

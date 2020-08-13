@@ -1,0 +1,90 @@
+#this is a moudle 
+#choose:
+import numpy as np
+import pygame
+import sys
+from pygame.locals import *
+import traceback
+import Game
+
+pygame.init()
+pygame.mixer.init()
+
+
+#画出主界面
+def draw_selector(position,decade,prompt):
+    decade+=1
+    str1="(提示：w,s,a,d分别为上，下，左，右，q为标记，e为翻开)"
+    screen = pygame.display.set_mode([450,700])
+    screen.fill((237,237,237))
+    pygame.draw.rect(screen,(0,0,0),[100,100,100,300],5)
+    pygame.draw.rect(screen,(0,0,0),[250,100,100,300],5)
+    pygame.draw.line(screen,(0,0,0),(100,200),(200,200),5)
+    pygame.draw.line(screen,(0,0,0),(100,300),(200,300),5)
+    pygame.draw.line(screen,(0,0,0),(250,200),(350,200),5)
+    pygame.draw.line(screen,(0,0,0),(250,300),(350,300),5)
+    
+    pygame.draw.line(screen,(0,0,0),(120,150),(180,150),20)
+    pygame.draw.line(screen,(0,0,0),(120,350),(180,350),20)
+    pygame.draw.line(screen,(0,0,0),(270,150),(330,150),20)
+    pygame.draw.line(screen,(0,0,0),(270,350),(330,350),20)
+    pygame.draw.line(screen,(0,0,0),(270,350),(330,350),20)
+    pygame.draw.line(screen,(0,0,0),(150,120),(150,180),20)
+    pygame.draw.line(screen,(0,0,0),(300,120),(300,180),20)
+    pygame.draw.rect(screen,(0,0,0),[100,450,250,100],5)
+    #定义字体跟大小
+    s_font1=pygame.font.Font('font.ttf',50)
+    s_font2=pygame.font.Font('font.ttf',16)
+    s_font3=pygame.font.Font('font.ttf',34)
+    #定义类容，是否抗锯齿，颜色
+    s_text1=s_font1.render(str(decade),True,(0,0,0))
+    s_text2=s_font1.render(str(position),True,(0,0,0))
+    s_text3=s_font1.render("开始游戏",True,(0,0,0))
+    s_text4=s_font2.render(str1,True,(0,0,0))
+    s_text5=s_font3.render(prompt,True,(255,0,0))
+    #将字放在窗口指定位置
+    screen.blit(s_text1,(135,220))
+    screen.blit(s_text2,(285,220))
+    screen.blit(s_text3,(120,470))
+    screen.blit(s_text4,(22,650))
+    screen.blit(s_text5,(100,50))
+
+
+
+
+
+    pygame.display.set_caption("选择难度")
+    
+    pygame.display.flip()
+
+
+def main(zhanghao,prompt='选择难度：'):
+    position=0
+    decade=1
+    draw_selector(position,decade,prompt)
+    while True:
+        for event in pygame.event.get():
+            if event.type ==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            elif event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if 100<event.pos[0]<200 and 100<event.pos[1]<200 :
+                        decade+=1
+                        decade=decade%3
+                        draw_selector(position,decade,prompt)
+                    elif 100<event.pos[0]<200 and 300<event.pos[1]<400:
+                        decade-=1
+                        decade=decade%3
+                        draw_selector(position,decade,prompt)
+                    elif 250<event.pos[0]<350 and 100<event.pos[1]<200 :
+                        position+=1
+                        position=position%10
+                        draw_selector(position,decade,prompt)
+                    elif 250<event.pos[0]<350 and 300<event.pos[1]<400 :
+                        position-=1
+                        position=position%10
+                        draw_selector(position,decade,prompt)
+                    elif 100<event.pos[0]<350 and 450<event.pos[1]<550:
+                        Game.main(N=10*(decade+1)+position,zhanghao=zhanghao)

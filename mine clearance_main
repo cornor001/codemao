@@ -1,0 +1,202 @@
+import easygui as g
+import sys
+import choose
+import traceback
+import cv2
+import Game
+
+
+n=0
+map1=[]
+map2=[]
+zhanghao=0
+zhanghao_list=[]
+# 登录函数,用户名已注册为实现
+def DengLu(zhanghao_list):
+    global n,map1,map2,zhanghao
+    fields = ('用户名：', '密码：')
+    msg = '请输入用户名和密码(不输入将为游客登陆)'
+    title = '登录'
+    yonghu = g.multpasswordbox(msg, title, fields)
+
+    if yonghu==None:
+        return "取消登陆"
+    elif yonghu == ['', '']:
+        button_choices=g.buttonbox('由于您未注册，系统将不会保存您的游戏缓存！！！','游客', choices=('确定','注册'))
+        if button_choices=='确定':
+            return 2
+        elif button_choices=='注册':
+            return 1
+    else:
+        # 将用户名读取在list1中
+        list1 = []
+        ZhangHao = open('用户信息/zhanghao.txt','r')
+        for each_line in ZhangHao:
+            (zhanghao_, huiche_) = each_line.split('\n')
+            list1.append(zhanghao_)
+        ZhangHao.close()
+
+        # 将密码读取在list2中
+        list2 = []
+        MiMa = open('用户信息/mima_s.txt','r')
+        for each_line in MiMa:
+            (mima_, huiche_) = each_line.split('\n')
+            list2.append(mima_)
+        MiMa.close()
+
+        # 确认用户名和密码是否存在并且匹配
+        for X in list1:
+            if X == str(yonghu[0]) and list2[list1.index(X)] != str(yonghu[1]):
+                g.msgbox('密码错误，请重新输入!', ok_button='确定 ')
+                return 0
+                break
+            elif X == str(yonghu[0]) and list2[list1.index(X)] == str(yonghu[1]):
+                g.msgbox(str(yonghu[0]) + '你好，欢迎来到扫雷!', ok_button='进入 ')
+                zhanghao=list1.index(X)
+                return 2
+                break
+        if str(yonghu[0]) not in list1:
+            g.msgbox('账号不存在，请注册：', ok_button='确定 ')
+            return 1
+
+
+# 注册函数
+def ZhuCe():
+    values = []
+    def zhuce():
+        msg = '*为必填项'
+        title = '账号中心'
+        fields = ['*用户名', '*密码']
+        return g.multenterbox(msg, title, fields, values)
+
+    YongHuZhuCe = zhuce()
+    if YongHuZhuCe == None:
+        return "取消注册"
+    else:
+        while YongHuZhuCe[0] == '' or YongHuZhuCe[1] == '':
+            g.msgbox('用户名或密码不能为空！', ok_button='继续填写 ')
+            values = [YongHuZhuCe[0], YongHuZhuCe[1], YongHuZhuCe[2]]
+            YongHuZhuCe = zhuce()
+
+        # 检验用户名是否被占用
+        list3 = []
+        ZhangHao = open('用户信息/zhanghao.txt','r')
+        for each_line in ZhangHao:
+            (zhanghao_, huiche_) = each_line.split('\n')
+            list3.append(zhanghao_)
+        ZhangHao.close()
+        while str(YongHuZhuCe[0]) in list3:
+            g.msgbox('该用户名已被占用！', ok_button='重新输入 ')
+            YongHuZhuCe = zhuce()
+        # 将账号密码分别存储在两个txt文件内
+        ZhangHao = open('用户信息/zhanghao.txt', 'a')
+        ZhangHao.write(YongHuZhuCe[0] + '\n')
+        ZhangHao.close()
+        MiMa = open('用户信息/mima_s.txt', 'a')
+        MiMa.write(YongHuZhuCe[1] + '\n')
+        MiMa.close()
+        Map1_s = open('用户信息/map1_s.txt', 'a')
+        Map1_s.write('1101111921910191112922011100119210111000393119100039911121109322111921121291112912922210119211191000' + '\n')
+        Map1_s.close()
+        Map2_s = open('用户信息/map2_s.txt', 'a')
+        Map2_s.write('0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' + '\n')
+        Map2_s.close()
+        N_s = open('用户信息/N_s.txt', 'a')
+        N_s.write('10' + '\n')
+        N_s.close()
+        # 将账号密码分别存储在两个txt文件内
+
+        return 0
+
+def main():
+    # 创建两个txt临时文件，分别用于存放用户名和密码
+    ZhangHao = open('用户信息/zhanghao.txt', 'a')
+    MiMa = open('用户信息/mima_s.txt', 'a')
+    Map1_s = open('用户信息/map1_s.txt', 'a')
+    Map2_s = open('用户信息/map2_s.txt', 'a')
+    N_s = open('用户信息/N_s.txt', 'a')
+    ZhangHao.close()
+    MiMa.close()
+    Map1_s.close()
+    Map2_s.close()
+    N_s.close()
+
+    
+    
+    while True:
+        zhanghao_list=[]
+        zhanghao_s=open('用户信息/zhanghao.txt','r')
+        for each_line in zhanghao_s:
+            (zhanghao_, huiche_) = each_line.split('\n')
+            zhanghao_list.append(zhanghao_)
+        zhanghao_s.close()
+
+        choices = ['已有账号，直接登录', '开始注册']
+        choice = 0
+        choice = g.indexbox('登录/注册：', '请选择：', choices=choices)
+        #登陆
+        if choice==0:
+            choice = DengLu(zhanghao_list)
+            if choice=="取消登陆":
+                continue
+
+        # 注册
+        if choice == 1:
+            choice = ZhuCe()
+            if choice == 0:
+                # 注册成功重新切入登录页面
+                zhanghao_list=[]
+                zhanghao_s=open('用户信息/zhanghao.txt','r')
+                for each_line in zhanghao_s:
+                    (zhanghao_, huiche_) = each_line.split('\n')
+                zhanghao_list.append(zhanghao_)
+                zhanghao_s.close()
+                choice = DengLu(zhanghao_list)
+            elif choice=="取消注册":
+                continue
+        if choice == 2:
+            choice = g.indexbox('开始/继续：', '请选择：', choices=['重新开始','继续游戏'])
+            if choice==0:
+                choose.main(zhanghao)
+            elif choice==1:
+                list3 = []
+                N = open('用户信息/N_s.txt','r')
+                for each_line in N:
+                    (mima_, huiche_) = each_line.split('\n')
+                    list3.append(mima_)
+                N.close()
+                n=int(list3[zhanghao])
+
+                list4=[]
+                Map1 = open('用户信息/map1_s.txt','r')
+                for each_line in Map1:
+                    (mima_, huiche_) = each_line.split('\n')
+                    list4.append(mima_)
+                Map1.close()
+                map=list4[zhanghao]
+                for i in range(n):
+                    map1.append(list(map[i*n:(i+1)*n]))
+
+                list5=[]
+                Map2 = open('用户信息/map2_s.txt','r')
+                for each_line in Map2:
+                    (mima_, huiche_) = each_line.split('\n')
+                    list5.append(mima_)
+                Map2.close()
+                map=list5[zhanghao]
+                for i in range(n):
+                    map2.append(list(map[i*n:(i+1)*n]))
+
+                for i in range(n):
+                    for j in range(n):
+                        map1[i][j]=int(map1[i][j])
+                        map2[i][j]=int(map2[i][j])
+                Game.main(n,map1,map2,zhanghao)
+    if __name__ == "__main__":
+	    try:
+	        main()
+	    except SystemExit:
+	        pass
+	    except:
+	        traceback.print_exc()
+	        input()

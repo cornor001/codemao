@@ -1,0 +1,651 @@
+#引入库
+from random import *
+from time import *
+from os import *
+from sys import *
+import datetime
+import requests
+import bs4
+#定义函数
+def clean_print():
+    print('\033[2J')
+    print('\033[99999999A',end='')
+def bat():
+    fbl = [1920,1080]
+    import pygame,sys
+    pygame.init()
+    screen = pygame.display.set_mode((int(fbl[0]),int(fbl[1])),pygame.FULLSCREEN)
+    while True:
+        for event in pygame.event.get():
+            pass
+        screen.fill((0,0,0))
+        pygame.display.update()
+    del pygame,sys
+from random import *
+from time import *
+import os
+from sys import *
+import datetime
+import requests
+import bs4
+def fetchUrl(url):
+    headers = {
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+    }
+    r = requests.get(url,headers=headers)
+    r.raise_for_status()
+    r.encoding = r.apparent_encoding
+    return r.text
+def getPageList(year, month, day):
+    url = 'http://paper.people.com.cn/rmrb/html/' + year + '-' + month + '/' + day + '/nbs.D110000renmrb_01.htm'
+    html = fetchUrl(url)
+    bsobj = bs4.BeautifulSoup(html,'html.parser')
+    temp = bsobj.find('div', attrs = {'id': 'pageList'})
+    if temp:
+        pageList = temp.ul.find_all('div', attrs = {'class': 'right_title-name'})
+    else:
+        pageList = bsobj.find('div', attrs = {'class': 'swiper-container'}).find_all('div', attrs = {'class': 'swiper-slide'})
+    linkList = []
+    for page in pageList:
+        link = page.a["href"]
+        url = 'http://paper.people.com.cn/rmrb/html/'  + year + '-' + month + '/' + day + '/' + link
+        linkList.append(url)
+    return linkList
+
+def getTitleList(year, month, day, pageUrl):
+    html = fetchUrl(pageUrl)
+    bsobj = bs4.BeautifulSoup(html,'html.parser')
+    temp = bsobj.find('div', attrs = {'id': 'titleList'})
+    if temp:
+        titleList = temp.ul.find_all('li')
+    else:
+        titleList = bsobj.find('ul', attrs = {'class': 'news-list'}).find_all('li')
+    linkList = []
+    for title in titleList:
+        tempList = title.find_all('a')
+        for temp in tempList:
+            link = temp["href"]
+            if 'nw.D110000renmrb' in link:
+                url = 'http://paper.people.com.cn/rmrb/html/'  + year + '-' + month + '/' + day + '/' + link
+                linkList.append(url)
+    return linkList
+def getContent(html):
+    bsobj = bs4.BeautifulSoup(html,'html.parser')
+    title = bsobj.h3.text + '\n' + bsobj.h1.text + '\n' + bsobj.h2.text + '\n'
+    pList = bsobj.find('div', attrs = {'id': 'ozoom'}).find_all('p')
+    content = ''
+    for p in pList:
+        content += p.text + '\n'      
+    resp = title + content
+    return resp
+
+def saveFile(content, path, filename):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(path + filename, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+def download_rmrb(year, month, day, destdir):
+    pageList = getPageList(year, month, day)
+    for page in pageList:
+        titleList = getTitleList(year, month, day, page)
+        for url in titleList:
+            html = fetchUrl(url)
+            content = getContent(html)
+            temp = url.split('_')[2].split('.')[0].split('-')
+            pageNo = temp[1]
+            titleNo = temp[0] if int(temp[0]) >= 10 else '0' + temp[0]
+            path = destdir + '/' + year + month + day + '/'
+            fileName = year + month + day + '-' + pageNo + '-' + titleNo + '.txt'
+            saveFile(content, path, fileName)
+#开头密码程序
+password=randint(10000,99999)
+print('这台电脑密码是:',password)
+if int(input('请输入密码:'))==password:
+    print('\033[32m密码正确！\n正在启动电脑')
+    sleep(1)
+    clean_print()
+    print("\033[1;33m正在加载中.")
+    print("\033[1;33m0%") 
+    sleep(0.1)
+    clean_print()
+    print("正在加载中..")
+    print("▌          5%") 
+    sleep(0.5) 
+    clean_print() 
+    print("正在加载中...")
+    print("█          10%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中.")
+    print("█▌         15%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中..")
+    print("██         20%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中...")
+    print("██▌        25%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中.")
+    print("███        30%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中..")
+    print("███▌       35%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中...")
+    print("████       40%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中.")
+    print("████▌      45%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中..")
+    print("█████      50%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中...")
+    print("█████▌     55%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中.")
+    print("██████     60%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中..")
+    print("██████▌    65%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中...")
+    print("███████    70%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中.")
+    print("███████▌   75%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中..")
+    print("████████   80%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中...")
+    print("████████▌  85%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中.")
+    print("█████████  90%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中..")
+    print("█████████▌ 95%")
+    sleep(0.5)
+    clean_print()
+    print("正在加载中...")
+    print("██████████ 100%")
+    sleep(1)
+else:
+    print('密码错误')
+    quit()
+#目录程序
+clean_print()
+print('\033[31m请选择模式：')
+print('1:新闻浏览器')
+print('2:源码破解器')
+print('3:高斯如何画正十七边形')
+print('4:进入作者模式')
+a=input('请选择:')
+if int(a)==1:
+    newsDate = input('请输入要看新闻的日期（格式如 20190502 ）:')
+    year = newsDate[0:4]
+    month = newsDate[4:6]
+    day = newsDate[6:8]
+    download_rmrb(year, month, day, 'D:/data')
+    print('新闻文件已存入data文件夹(具体在哪自己搜一下)')
+elif int(a)==2:
+    import pyperclip
+    import webbrowser
+    def f (text):
+        stdout.write('\r'+' '*0+'\r')
+        stdout.flush()
+        for df in text:
+            stdout.write(df)
+            stdout.flush()
+            sleep(0.1) 
+        print()
+    def z (text):
+        stdout.write('\r'+' '*0+'\r')
+        stdout.flush()
+        for df in text:
+            stdout.write(df)
+            stdout.flush()
+            sleep(0.5) 
+
+    print('欢迎来到源码破解器')
+    if input('是否直接存粘贴板获取？（是，否）')!='是':
+        print('请输入要破解的网址：')
+        string=input()
+        a=''
+        for i in range(0,len(string)):
+            try:
+                int(string[i])
+            except:
+                pass
+            else:
+                a=a+string[i]
+        a='https://code.xueersi.com/code/ide/code/'+str(a)
+        f('\033[31m正在破解中')
+        z('...')
+        f('破解完成！')
+        z='网址为:'+a
+        f(z)
+        webbrowser.open(a)
+    else:
+        string=pyperclip.paste()
+        a=''
+        for i in range(0,len(string)):
+            try:
+                int(string[i])
+            except:
+                pass
+            else:
+                a=a+string[i]
+
+        a='https://code.xueersi.com/code/ide/code/'+str(a)
+        f('\033[31m正在破解中')
+        z('...')
+        f('破解完成！')
+        z='网址为:'+a
+        f(z)
+        webbrowser.open(a)
+elif int(a)==3:
+    #画一个正十七边形
+    from turtle import *
+    from time import *
+
+    speed(7)#设置笔的基本信息#
+    color("skyblue")
+    pensize(2)
+
+#第一步：
+    print("给一圆O，作两垂直的直径AB、CD")
+    sleep(1)
+    penup()
+    goto(0,-250)
+    pendown()
+    circle(250)
+    penup()
+    goto(0,0)
+    color("red")
+    pendown()
+    dot(10)
+    write("O",font = ["楷书",20,"bold"])#标O点
+    color("skyblue")
+    penup()
+    goto(-250,0)
+    pendown()
+    color("red")
+    dot(10)
+    write("A",font = ["楷书",20,"bold"])#标A点
+    color("skyblue")
+    fd(500)
+    color("red")
+    dot(10)
+    write("B",font = ["楷书",20,"bold"])#标B点
+    penup()
+    color("yellow")
+    pensize(1)
+    goto(250,250)
+    left(180)
+    pendown()
+    circle(250,180)
+    penup()
+    goto(-250,-250)
+    pendown()
+    circle(250,180)
+    penup()
+    goto(0,-250)
+    pendown()
+    color("red")
+    dot(10)
+    write("C",font = ["楷书",20,"bold"])#标C点
+    color("skyblue")
+    goto(0,250)
+    color("red")
+    dot(10)
+    write("D",font = ["楷书",20,"bold"])#标D点
+    penup()
+    color("white")#擦除无用线段
+    pensize(1)
+    speed(0)
+    goto(250,250)
+    pendown()
+    circle(250,180)
+    penup()
+    goto(-250,-250)
+    pendown()
+    circle(250,180)
+    penup()
+    goto(0,-250)
+    pendown()
+    
+    #第二步：
+    speed(7)
+    color("yellow")
+    pensize(1)
+    print("在OA上作E点使OE=1/4AO，连结CE")
+    sleep(1)
+    penup()
+    goto(-250,-125)
+    right(180)
+    pendown()
+    circle(125,180)
+    penup()
+    goto(0,125)
+    pendown()
+    circle(125,180)
+    penup()
+    goto(-125,-62.5)
+    pendown()
+    color("yellow")
+    circle(62.5,180)
+    penup()
+    goto(0,62.5)
+    pendown()
+    circle(62.5,180)
+    penup()
+    goto(-62.5,0)
+    color("red")
+    dot(10)
+    write("E",font = ["楷书",20,"bold"])#标E点
+    color("skyblue")
+    pensize(2)
+    pendown()
+    goto(0,250)
+    color("white")#擦除无用线段
+    pensize(1)
+    speed(0)
+    penup()
+    goto(-250,-125)
+    pendown()
+    circle(125,180)
+    penup()
+    goto(0,125)
+    pendown()
+    circle(125,180)
+    penup()
+    goto(-125,-62.5)
+    pendown()
+    circle(62.5,180)
+    penup()
+    goto(0,62.5)
+    pendown()
+    circle(62.5,180)
+
+#第三步：
+    speed(7)
+    color("yellow")
+    pensize(1)
+    print("作∠CEB的平分线EF")
+    sleep(1)
+    penup()
+    goto(-62.5,-257.694102)
+    pendown()
+    circle(257.694102,180)
+    penup()
+    goto(195.194102,-257.694102)
+    pendown()
+    color("green")
+    left(180)
+    circle(257.694102,180)
+    penup()
+    goto(0,-7.694102)
+    pendown()
+    left(180)
+    circle(257.694102,100)
+    penup()
+    goto(-250,250)
+    goto(-250,0)    
+    goto(-62.5,0)
+    right(62)
+    pendown()
+    color("skyblue")
+    pensize(2)
+    fd(300)#连结EF
+    color("red")
+    dot(10)
+    write("F",font = ["楷书",20,"bold"])#标F点
+    color("white")#擦除无用线段
+    pensize(3)
+    speed(0)
+    penup()
+    goto(0,62.5)
+    circle(62.5,180)
+    goto(-62.5,-257.694102)
+    right(218)
+    pendown()
+    circle(257.694102,180)
+    penup()
+    goto(195.194102,-257.694102)
+    pendown()
+    left(180)
+    circle(257.694102,180)
+    penup()
+    goto(0,-7.694102)
+    pendown()
+    left(180)
+    circle(257.694102,100)
+
+#第四步：
+    speed(7)
+    color("skyblue")
+    pensize(2)
+    print("作∠FEB的平分线EG，交CO于P")
+    sleep(1)
+    penup()
+    goto(-250,0)
+    goto(-250,-250)
+    goto(-62.5,-250)
+    left(350)
+    fd(250)
+    right(71.75)
+    pendown()
+    fd(310)
+    color("red")
+    dot(10)
+    write("G",font = ["楷书",20,"bold"])#标G点
+    color("skyblue")
+    left(180)
+    fd(245)
+    color("red")
+    dot(10)
+    write("P",font = ["楷书",20,"bold"])#标P点
+
+#第五步：
+    speed(7)
+    color("yellow")
+    pensize(1)
+    print("作∠GEH = 45°，交CD于Q")
+    penup()
+    sleep(1)
+    fd(65)
+    pendown()
+    fd(65)
+    left(90)
+    circle(65,180)
+    left(90)
+    penup()
+    fd(65)
+    left(90)
+    pendown()
+    color("green")
+    fd(265)
+    left(90)
+    circle(265,90)
+    penup()
+    left(90)
+    fd(265)
+    left(135)
+    pendown()
+    color("skyblue")
+    pensize(2)
+    fd(307)
+    color("red")
+    dot(10)
+    write("H",font = ["楷书",20,"bold"])#标H点
+    penup()
+    left(180)
+    fd(239.0160864615753)
+    dot(10)
+    write("Q",font = ["楷书",20,"bold"])#标Q点
+    color("white")#擦除无用线段
+    pensize(3)
+    speed(0)
+    penup()
+    goto(-62.5,0)
+    left(45)
+    pendown()
+    fd( 65)
+    left(90)
+    circle(65,180)
+    left(90)
+    penup()
+    fd(65)
+    left(90)
+    pendown()
+    fd(265)
+    left(90)
+    circle(265,90)
+    penup()
+    left(90)
+    fd(265)
+
+#第六步：
+    speed(7)
+    color("skyblue")
+    pensize(2)
+    print("以CQ为直径作圆,交OB于K")
+    sleep(1)
+    left(85.5)
+    fd(260)
+    left(166.5)
+    fd(500)
+    left(90)
+    pendown()
+    circle(137.5)
+    left(90)
+    penup()
+    fd(250)
+    left(90)
+    fd(75)
+    pendown()
+    color("red")
+    dot(10)
+    write("K",font = ["楷书",20,"bold"])#标K点
+
+#第七步：
+    speed(7)
+    color("skyblue")
+    pensize(2)
+    print("以P为圆心,PK为半径作圆,交CD于L、M")
+    sleep(1)
+    left(163)
+    fd(76)
+    penup()
+    left(190)
+    fd(76)
+    left(90)
+    pendown()
+    circle(76)
+    left(7.5)
+    penup()
+    fd(86)
+    left(90)
+    fd(75)
+    pendown() 
+    color("red")
+    dot(10)
+    write("M",font = ["楷书",20,"bold"])#标M点
+    left(90)
+    penup()
+    fd(152)
+    pendown()
+    dot(10)
+    write("L",font = ["楷书",20,"bold"])#标L点
+
+#第八步
+    speed(7)
+    color("red")
+    pensize(2)
+    print("分别过M、L作CD的垂线,交圆O于N、R")
+    sleep(1)
+    right(91)
+    fd(249)
+    dot(10)
+    write("R",font = ["楷书",20,"bold"])#标R点
+    right(180)
+    fd(250)
+    left(90)
+    penup()
+    fd(152)
+    pendown()
+    left(91)
+    fd(234)
+    color("red")
+    dot(10)
+    write("L",font = ["楷书",20,"bold"])#标L点
+    
+    
+    #第九步
+    print("作弧NR的中点S,以SN为半径将圆O分成17等份")
+    sleep(1)
+    left(90)
+    penup()
+    fd(76)
+    right(90)
+    pendown()
+    fd(20)
+    dot(10)
+    write("S",font = ["楷书",20,"bold"])#标S点
+    left(86)
+    begin_fill()
+    circle(250,360,17)
+    sleep(1)
+    end_fill()
+elif int(a)==4:
+    password=input('请输入作者模式的25位密码')
+    import pyperclip
+    if pyperclip.paste()=='awsaqygzqug23f62f3rw1r6r':
+        pyperclip.copy('不许用复制粘贴————作者')
+        print('不许用复制粘贴————作者')
+        print('接受制裁吧!')
+        print('启动bat程序')
+        sleep(0.1)
+        bat()
+    if password=='awsaqygzqug23f62f3rw1r6r':
+        print('密码正确!')
+    else:
+        print('密码错误!')
+        while 1==1:
+            print('密码错误!')
+            print('启动bat程序')
+            sleep(0.1)
+            bat()
+    print('欢迎进入作者模式!')
+    while 1==1:
+        print('请输入代码:')
+        import sys
+        try:
+            exec(input(''))
+        except:
+            print(sys.exc_info())
+            os.system("export TERM=xterm && clear");
+        else:
+            os.system("export TERM=xterm && clear");
+            
+            

@@ -1,0 +1,313 @@
+#this is a modle
+#game.py:
+import numpy as np
+import pygame
+import sys
+import traceback
+import random
+import choose
+from pygame.locals import *
+
+
+pygame.init()
+pygame.mixer.init()
+button_sound = pygame.mixer.Sound("button.wav")
+button_sound.set_volume(0.2)
+bomb_sound = pygame.mixer.Sound("bomb.wav")
+bomb_sound.set_volume(0.2)
+
+#绘制地图
+def draw_map(screen,N):
+    screen.fill((237,237,237))
+    for i in range(N):
+        for j in range(N):
+            pygame.draw.rect(screen,(0,0,0),[i*30,j*30,29,29],1)
+
+#翻开数字
+def draw_sort(screen,x,y,N,map1,map2):
+    #定义字体跟大小
+    s_font=pygame.font.Font('font.ttf',19)
+    #定义类容，是否抗锯齿，颜色
+    if map1[x][y]==0:
+        color=(86,98,166)
+    elif map1[x][y]==1:
+        color=(67,106,62)
+    elif map1[x][y]==2:
+        color=(15,170,209)
+    else:
+        color=(222,29,90)
+    s_text=s_font.render(str(map1[x][y]),True,color)
+    #将字放在窗口指定位置
+    screen.blit(s_text,(x*30+9,y*30+3))
+    if map2[x][y]==2:
+        map2[x][y]=1
+        Clean_select(screen,x,y,map2)
+    map2[x][y]=1
+    pygame.display.flip()
+#翻开雷
+def draw_bomb(screen,map1,N,zhanghao):
+    bomb=pygame.image.load("bomb.png").convert_alpha()
+    for i in range(N):
+        for j in range(N):
+            if map1[i][j]>=9:
+                screen.blit(bomb,(30*i+1,30*j+1))
+    bomb_sound.play(0)
+    pygame.display.flip()
+    pygame.time.wait(5000)
+    choose.main(zhanghao,"游戏失败！！")
+#绘制键盘选中项
+def draw_select(screen,x,y):
+    pygame.draw.rect(screen,(0,0,0),[x*30,y*30,29,29],3)
+    pygame.display.flip()
+#清除选中项,标记项
+def Clean_select(screen,x,y,map2):
+    pygame.draw.rect(screen,(237,237,237),[x*30,y*30,29,29],3)
+    pygame.draw.rect(screen,(0,0,0),[x*30,y*30,29,29],1)
+    if map2[x][y]==2:
+        draw_sign(screen,x,y)
+    pygame.display.flip()
+#绘制标记项
+def draw_sign(screen,x,y):
+    pygame.draw.rect(screen,(237,0,0),[x*30,y*30,29,29],3)
+    pygame.display.flip()
+
+#放入雷
+def thunder(N,map1):
+    a=0
+    while(a!=N*N//6):
+        x=random.randint(0,N-1)
+        y=random.randint(0,N-1)
+        map1[x][y]=9
+        a=0
+        for i in range(N):
+            for j in range(N):
+                if map1[i][j]==9:
+                    a+=1
+
+
+        
+#显示0旁边的类容
+def show_around(screen,x,y,N,map1,map2):
+    if y+1<N and map1[x][y+1]!=9 and map2[x][y+1]!=1:
+        draw_sort(screen,x,y+1,N,map1,map2)
+        if map1[x][y+1]==0:
+            show_around(screen,x,y+1,N,map1,map2)
+    if y-1>=0 and map1[x][y-1]!=9and map2[x][y-1]!=1:
+        draw_sort(screen,x,y-1,N,map1,map2)
+        if map1[x][y-1]==0:
+            show_around(screen,x,y-1,N,map1,map2)
+    if x+1<N and map1[x+1][y]!=9and map2[x+1][y]!=1:
+        draw_sort(screen,x+1,y,N,map1,map2)
+        if map1[x+1][y]==0:
+            show_around(screen,x+1,y,N,map1,map2)
+    if x-1>=0 and map1[x-1][y]!=9and map2[x-1][y]!=1:
+        draw_sort(screen,x-1,y,N,map1,map2)
+        if map1[x-1][y]==0:
+            show_around(screen,x-1,y,N,map1,map2)
+    if x+1<N and y-1>=0 and map1[x+1][y-1]!=9and map2[x+1][y-1]!=1:
+        draw_sort(screen,x+1,y-1,N,map1,map2)
+        if map1[x+1][y-1]==0:
+            show_around(screen,x+1,y-1,N,map1,map2)
+    if x+1<N and y+1<N and map1[x+1][y+1]!=9and map2[x+1][y+1]!=1:
+        draw_sort(screen,x+1,y+1,N,map1,map2)
+        if map1[x+1][y+1]==0:
+            show_around(screen,x+1,y+1,N,map1,map2)
+    if x-1>=0 and y-1>=0 and map1[x-1][y-1]!=9and map2[x-1][y-1]!=1:
+        draw_sort(screen,x-1,y-1,N,map1,map2)
+        if map1[x-1][y-1]==0:
+            show_around(screen,x-1,y-1,N,map1,map2)
+    if x-1>=0 and y+1<N and map1[x-1][y+1]!=9and map2[x-1][y+1]!=1:
+        draw_sort(screen,x-1,y+1,N,map1,map2)
+        if map1[x-1][y+1]==0:
+            show_around(screen,x-1,y+1,N,map1,map2)
+    
+
+
+#给map1赋值
+def assignment(N,map1):
+    for i in range(N):
+        for j in range(N):
+            if(map1[i][j]>=9):
+                if j+1<N:
+                    map1[i][j+1]+=1
+                if j-1>=0:
+                    map1[i][j-1]+=1
+                if i+1<N:
+                    map1[i+1][j]+=1
+                if i-1>=0:
+                    map1[i-1][j]+=1
+                if i+1<N and j-1>=0:
+                    map1[i+1][j-1]+=1
+                if i+1<N and j+1<N:
+                    map1[i+1][j+1]+=1
+                if i-1>=0 and j-1>=0:
+                    map1[i-1][j-1]+=1
+                if i-1>=0 and j+1<N:
+                    map1[i-1][j+1]+=1
+    for i in range(N):
+        for j in range(N):
+            if(map1[i][j]>=9):
+                map1[i][j]=9
+#更新指定文件里面的数据
+def update(zhanghao,data,file,N):
+    data_list=[]
+    data_s=open(file,'r')
+    for each_line in data_s:
+        (data_, huiche_) = each_line.split('\n')
+        data_list.append(data_)
+    data_s.close()
+    if data!=N:
+        data_list[zhanghao]=conversion(data,N)
+    elif data==N:
+        data_list[zhanghao]=str(N)
+    data_s=open(file,'w')
+    for i in range(len(data_list)):
+        data_s.write(data_list[i]+'\n')
+    data_s.close()
+
+#更新所有数据
+def update2(zhanghao,map1,map2,N,address='用户信息/map1_s.txt'):
+    update(zhanghao,map1,'用户信息/map1_s.txt',N)
+    update(zhanghao,map2,'用户信息/map2_s.txt',N)
+    update(zhanghao,N,'用户信息/N_s.txt',N)
+
+
+#将二维数组转换成字符串
+def conversion(map,N):
+    Str=''
+    for i in range(N):
+        for j in range(N):
+            Str+=str(map[i][j])
+    return Str
+
+#判断是否胜利
+def is_win(map2,N):
+    sum=0
+    for i in range(N):
+        sum+=map2[i].count(1)
+    if sum==(N*N-N*N//6):
+        return True
+    return False
+
+#主函数
+def main(N,map1=[],map2=[],zhanghao=0):
+
+    if map1==[]:
+        #储存“雷”状态的数组
+        map1=list([])
+        for i in range(N):
+            map1.append([0]*N)
+        #储存翻开状态的列表
+        map2=list([])
+        for i in range(N):
+            map2.append([0]*N)
+        thunder(N,map1)
+        assignment(N,map1)
+
+    key_x=0
+    key_y=0
+
+    #定义窗口
+    screen = pygame.display.set_mode([30*N,30*N])
+    
+    #定义窗口名字
+    pygame.display.set_caption("扫雷:("+str(N*N//6)+"个雷)")
+    draw_map(screen,N)
+
+    if map2!=[]:
+        for i in range(N):
+            for j in range(N):
+                if map2[i][j]==1 and map1[i][j]<9:
+                    draw_sort(screen,i,j,N,map1,map2)                    
+        for i in range(N):
+            for j in range(N):
+                if map2[i][j]==1 and map1[i][j]>=9:
+                    draw_bomb(screen,map1,N,zhanghao)
+
+    pygame.display.flip()    
+    while True:
+        for event in pygame.event.get():
+            #点击x则关闭窗口
+            if event.type ==pygame.QUIT:
+                update2(zhanghao,map1,map2,N)
+                pygame.quit()
+                sys.exit()
+            
+            #点击鼠标
+            elif event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    Clean_select(screen,key_x,key_y,map2)
+                    x,y=event.pos[0]//30,event.pos[1]//30
+                    if map2[x][y]== 0:
+                        button_sound.play(0)
+                        if map1[x][y]== 0:
+                            show_around(screen,x,y,N,map1,map2)
+                            update2(zhanghao,map1,map2,N)
+                        if map1[x][y]<9:
+                            draw_sort(screen,x,y,N,map1,map2)
+                            update2(zhanghao,map1,map2,N)
+                        else :
+                            map2[x][y]=1
+                            update2(zhanghao,map1,map2,N)
+                            draw_bomb(screen,map1,N,zhanghao)
+                        if is_win(map2,N):
+                            update2(zhanghao,map1,map2,N)
+                            choose.main(zhanghao,"游戏胜利！！")
+                    
+                        
+                        
+                elif event.button==3:
+                    Clean_select(screen,key_x,key_y,map2)
+                    x,y=event.pos[0]//30,event.pos[1]//30
+                    if map2[x][y]==0:
+                        draw_sign(screen,x,y)
+                        map2[x][y]=2
+                    elif map2[x][y]==2:
+                        map2[x][y]=0
+                        Clean_select(screen,x,y,map2)
+
+            #点击键盘
+            elif event.type==KEYDOWN:
+                if (event.key==K_w or event.key==K_UP) and key_y>0:
+                    Clean_select(screen,key_x,key_y,map2)
+                    key_y-=1
+                    draw_select(screen,key_x,key_y)
+                elif (event.key==K_s or event.key==K_DOWN) and key_y<N-1:
+                    Clean_select(screen,key_x,key_y,map2)
+                    key_y+=1
+                    draw_select(screen,key_x,key_y)
+                elif (event.key==K_a or event.key==K_LEFT) and key_x>0:
+                    Clean_select(screen,key_x,key_y,map2)
+                    key_x-=1
+                    draw_select(screen,key_x,key_y)
+                elif (event.key==K_d or event.key==K_RIGHT) and key_x<N-1:
+                    Clean_select(screen,key_x,key_y,map2)
+                    key_x+=1
+                    draw_select(screen,key_x,key_y)
+                elif event.key==K_e and map2[key_x][key_y]== 0: 
+                    button_sound.play(0)
+                    if map1[key_x][key_y]==0:
+                        show_around(screen,key_x,key_y,N,map1,map2)
+                        update2(zhanghao,map1,map2,N)                  
+                    if map1[key_x][key_y]<9:
+                        draw_sort(screen,key_x,key_y,N,map1,map2)
+                        update2(zhanghao,map1,map2,N)
+                    else :
+                        map2[key_x][key_y]=1
+                        update2(zhanghao,map1,map2,N)
+                        draw_bomb(screen,map1,N,zhanghao)
+                    if is_win(map2,N):
+                        choose.main(zhanghao,"游戏胜利！！")
+                elif event.key==K_q:
+                    if map2[key_x][key_y]==0:
+                        draw_sign(screen,key_x,key_y)
+                        map2[key_x][key_y]=2
+                    elif map2[key_x][key_y]==2:
+                        map2[key_x][key_y]=0
+                        Clean_select(screen,key_x,key_y,map2)
+                elif event.key==K_o:
+                    for i in range(N):
+                        for j in range(N):
+                            if map1[i][j]<9:
+                                draw_sort(screen,i,j,N,map1,map2)
+                                map2[i][j]=1
